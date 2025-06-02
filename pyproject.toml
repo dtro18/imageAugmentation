@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "augbox"
+version = "0.1.0"
+description = "A lightweight image augmentation package"
+authors = [
+    { name = "Dylan Tran", email = "trandf@uci.edu" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = [
+    "pillow"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/augbox"
