@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "augbox"
+name = "imageAugmentation"
 version = "0.1.0"
 description = "A lightweight image augmentation package"
 authors = [
@@ -16,4 +16,4 @@ dependencies = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/augbox"
+"Homepage" = "https://github.com/dtro18/imageAugmentation"
