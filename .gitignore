@@ -1,0 +1,8 @@
+dist/
+build/
+*.egg-info/
+
+commands.txt
+sample_output/
+test_images/
+secretstuff
