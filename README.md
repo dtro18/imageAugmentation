@@ -21,6 +21,7 @@ Created by Dylan Tran
 
 ## Contrast Adjustment ## 
 
+![The original image](./readme_assets/originalcontrast.png "High Contrast") ![A high contrast image.](./readme_assets/highcontrast.png "High Contrast")
 - This image processing step increases contrast between pixels, making features more visually apparent.
 
 
