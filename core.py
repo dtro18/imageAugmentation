@@ -23,12 +23,15 @@ def readImageDirIntoArr(filePath):
     return imgArr
 
 
-def rotateReflectAug(imgArr):
+def geometricAugOfImgArr(imgArr):
 
     """
+
     Applies five geometric transformations, including rotation and reflection
     on a specified array of Images.
+
     Input: Array of Image (PIL) objects
+
     Output: Array of original images plus their transformations (5 each).
 
     """
@@ -49,7 +52,7 @@ def rotateReflectAug(imgArr):
 
 
 
-def rectangleAug(
+def rectangleAugOfImgArr(
         images, 
         augFactor, 
         maxWidthProp=0.50, 
@@ -106,7 +109,7 @@ def rectangleAug(
         yield res
 
 
-def increaseContrast(imgArr, contrastFactor=1.0):
+def increaseContrastOfImgArr(imgArr, contrastFactor=1.0):
     """
     Nullifies pixels below a certain threshold, and increases the brightness of pixels above a certain threshold.
 
@@ -173,11 +176,12 @@ def saveOutputs(outputDir, augArr, startIdx):
         startIdx += 1
     print(f"Image saved to: {newImgPath}")
 
-
+# TODO: Test
 def initTrialDirectory(
+        trialNum,
         baseDir,
         originalImageDir,
-        labelImagePath,
+        labelImageDir,
         increaseContrast=False,
         contrastFactor=1.0,
         resizeImg=False,
@@ -190,7 +194,8 @@ def initTrialDirectory(
         minHeight=50,
         centerBias=0.0,
         fillColor=0,
-        geometricAug=False
+        geometricAug=False,
+        maxImages=50000
     ):
 
 
@@ -226,9 +231,10 @@ def initTrialDirectory(
     
     # Initialize config file:
     config = {
-        "baseDir": baseDir,  # Specify your base directory path
+        "trialNum": trialNum,
+        "baseDir": baseDir,  # Specify your base directory path, containing the results of all the trials/experiments
         "originalImageDir": originalImageDir,  # Specify your original image directory path
-        "labelImagePath": labelImagePath,
+        "labelImageDir": labelImageDir,
         "increaseContrast": increaseContrast,
         "contrastFactor": contrastFactor,
         "resizeImg": resizeImg,
@@ -245,34 +251,89 @@ def initTrialDirectory(
     }
     utils.writeConfigFile(baseDir, config)
 
-    # Calculate number of images to be generated
-    # labelArr = readImageDirIntoArr(labelImagePath)
-    # os.makedirs(baseDir, exist_ok=True)  # Ensure the directory exists
-    # file_path = os.path.join(baseDir, filename)
+
+    # Load img/label pairs into Image arrays
+    origImgArr = readImageDirIntoArr(originalImageDir)
+    labelArr = readImageDirIntoArr(labelImageDir)
+
+    # Calculate the number of copies that would be made
+    numCopies = utils.calculateCopies(rectangleAug, augFactor, geometricAug)
+    if numCopies * origImgArr > maxImages:
+        raise ValueError("Number of images that would be generated is too high. Override with the parameter maxImages.")
+
+    # Make trial, input, and labeled images directories and ensure uniqueness
+    trialDirectory = os.path.join(baseDir, "trial_" + str(trialNum))
+    os.makedirs(trialDirectory, exist_ok=False)  # Ensure the trial/directory to be created DOES NOT exist
+    newInputImagesPath = os.path.join(baseDir, "input_images")
+    newLabeledImagesPath = os.path.join(baseDir, "label_images")
+    os.makedirs(newInputImagesPath, exist_ok=False)
+    os.makedirs(newLabeledImagesPath, exist_ok=False)
+
     
-    # TODO
-    # Write separate case for geometric augmentation, which requires the same tx to be applied to the label set
+    # Image Preprocessing Steps
+    if resizeImg:
+        origImgArr = resizeImgArr(origImgArr, resizeDim)
+        labelArr = resizeImgArr(labelArr, resizeDim)
     
-    # with open(file_path, "w") as f:
-    #     for key, value in configDict.items():
-    #         f.write(f"{key}={value}\n")
-    # numCopies = utils.calculateCopies(rectangleAug, augFactor, geometricAug)
+    if increaseContrast:
+        origImgArr = increaseContrastOfImgArr(origImgArr, contrastFactor)
+        # Shouldn't matter for our use case
+        labelArr = increaseContrastOfImgArr(labelArr, contrastFactor)
+
+    # Augmentation Steps. Must apply geometric aug first if present
+    if geometricAug:
+        origImgArr = geometricAugOfImgArr(origImgArr)
+        labelArr = geometricAugOfImgArr(labelArr)
+
+    # Apply and save rectangle patch augmentation
+    if rectangleAug:
+        startIdx = 0
+        # Pass in params relating to rectangular augmentation
+        for imgArr in rectangleAugOfImgArr(
+            origImgArr, augFactor,
+            maxWidthProp,
+            maxHeightProp, 
+            minWidth, 
+            minHeight,
+            centerBias,
+            fillColor
+        ):
+            saveOutputs(newInputImagesPath, imgArr, startIdx)
+            startIdx += len(imgArr)
+        
+        startIdx = 0
+        # For every image in the labeled directory, save n copies (where n = augFactor)
+        # One image that had 20 random rectangles patched onto it should have 20 labels.
+        for img in labelArr:
+            for i in range(augFactor):
+                newImgPath = os.path.join(newLabeledImagesPath, str(startIdx).zfill(4) + ".png")
+                img.save(newImgPath, format="PNG")
+                startIdx += 1
+    else:
+        startIdx = 0
+        saveOutputs(newLabeledImagesPath, labelArr, startIdx)
+
+
+    # If geometricAug is true, we have to apply the geometric transformation to both sets.
+
+    # Write separate case for geometric xaugmentation, which requires the same tx to be applied to the label set
+    # 
 
 
 
 
-# Read raw images
-arr = readImageDirIntoArr(r"C:\Augmentation\test_images\msk_3_7")
-# Apply geometric augmentation
-arr = rotateReflectAug(arr)
-# Apply contrast filter
-arr = increaseContrast(arr, 3.0)
-# Apply resize
-arr = resizeImgArr(arr, 256)
+# # Read raw images
+# arr = readImageDirIntoArr(r"C:\Augmentation\test_images\msk_3_7")
+# # Apply geometric augmentation
+# arr = rotateReflectAug(arr)
+# # Apply contrast filter
+# arr = increaseContrast(arr, 3.0)
+# # Apply resize
+# arr = resizeImgArr(arr, 256)
 
-# Apply and save rectangle patch augmentation
-startIdx = 0
-for imgArr in rectangleAug(arr, augFactor=10, maxWidthProp=0.70, maxHeightProp=0.70, centerBias=0.20, fillColor=255):
-    saveOutputs(r"C:\Augmentation\test_output", imgArr, startIdx)
-    startIdx += len(imgArr)
+# # Apply and save rectangle patch augmentation
+# startIdx = 0
+# for imgArr in rectangleAug(arr, augFactor=10, maxWidthProp=0.70, maxHeightProp=0.70, centerBias=0.20, fillColor=255):
+#     saveOutputs(r"C:\Augmentation\test_output", imgArr, startIdx)
+#     startIdx += len(imgArr)
 
