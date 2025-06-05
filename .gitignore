@@ -1,6 +1,7 @@
 dist/
 build/
 *.egg-info/
+__pycache__/
 
 commands.txt
 sample_output/
@@ -9,3 +10,5 @@ secretstuff
 
 test_images/
 test_output/
+
+test_projects/trial*/

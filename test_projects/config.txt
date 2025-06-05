@@ -1,0 +1,17 @@
+trialNum=1
+baseDir=C:\imageAugmentation\test_projects
+originalImageDir=C:\imageAugmentation\test_projects\test_images_src
+labelImageDir=C:\imageAugmentation\test_projects\test_label_src
+increaseContrast=True
+contrastFactor=2.0
+resizeImg=True
+resizeDim=256
+rectangleAug=True
+augFactor=10
+maxWidthProp=0.7
+maxHeightProp=0.7
+minWidth=50
+minHeight=50
+centerBias=0.0
+fillColor=0
+geometricAug=True
