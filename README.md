@@ -21,7 +21,8 @@ Created by Dylan Tran
 
 ## Contrast Adjustment ## 
 
-- TODO
+- This image processing step increases contrast between pixels, making features more visually apparent.
+
 
 
 
