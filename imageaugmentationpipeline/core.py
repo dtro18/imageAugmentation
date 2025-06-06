@@ -5,7 +5,7 @@ from pathlib import Path
 import random
 import numpy as np
 
-import core.utils as utils
+from imageaugmentationpipeline import utils
 # Params
 # IMAGE_INPUT_DIR = File directory containing images to be augmented
 # AUGMENTATION_TYPE = randomcrop, rotation, reflection
@@ -243,7 +243,7 @@ def initTrialDirectory(
         "fillColor": fillColor,
         "geometricAug": geometricAug
     }
-    utils.writeConfigFile(baseDir, config)
+    utils.writeConfigFile(trialDirectory, config)
 
 
     # Load img/label pairs into Image arrays

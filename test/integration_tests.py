@@ -1,13 +1,13 @@
 import unittest
-from core import core
+from imageaugmentationpipeline import core
 
 class IntegrationTests(unittest.TestCase):
     def test_init_trial_directory(self):
         core.initTrialDirectory(
             1,
-            r"C:\imageAugmentation\test_projects",
-            r"C:\imageAugmentation\test_projects\test_images_src",
-            r"C:\imageAugmentation\test_projects\test_label_src",
+            r"C:\augmentation\test_projects",
+            r"C:\augmentation\test_projects\test_images_src",
+            r"C:\augmentation\test_projects\test_label_src",
             increaseContrast=True,
             contrastFactor=2.0,
             resizeImg=True,
@@ -24,7 +24,7 @@ class IntegrationTests(unittest.TestCase):
         )
 
     def test_image_processing_suite(self):
-        imgArr = core.readImageDirIntoArr(r"C:\imageAugmentation\test_projects\test_images_src")
+        imgArr = core.readImageDirIntoArr(r"C:\augmentation\test_projects\test_images_src")
         imgArr[0].show()
         imgArr = core.reduceNoise(imgArr, 75)
         imgArr = core.increaseContrastOfImgArr(imgArr, 3.0)
